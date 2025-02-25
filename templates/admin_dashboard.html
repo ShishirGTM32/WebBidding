@@ -1,0 +1,133 @@
+{% load static %}
+
+<head>
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Admin Dashboard</h1>
+
+        <!-- Admin Information -->
+        <h2 class="text-center">Hello, Admin!</h2>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Admin Information</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+                            <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+                        </ul>
+                        <div class="text-center">
+                            <form action="{% url 'LogOut' %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger mt-4">Logout</button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: 5px solid #333;">
+
+        <!-- Stats Section -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Total Sellers</h5>
+                        <p class="h4">{{ sellers_count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Total Bidders</h5>
+                        <p class="h4">{{ bidders_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: 5px solid #333;">
+
+
+        <!-- Bids Section -->
+        <div class="container my-5">
+
+            <!-- Bids Table -->
+            <h3>All Bids</h3>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Item Name</th>
+                        <th scope="col">Starting Price</th>
+                        <th scope="col">Highest Bid</th>
+                        <th scope="col">Auction End Time</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bid in bids %}
+                    <tr>
+                        <td>{{ bid.item_name }}</td>
+                        <td>${{ bid.starting_price }}</td>
+                        <td>${{ bid.highest_bid }}</td>
+                        <td>{{ bid.auction_end_time|date:"F j, Y, g:i a" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'bid_detail' bid_id=bid.id %}" class="btn btn-info btn-sm me-2">View</a>
+                            <a href="{% url 'delete_bid' bid_id=bid.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No bids found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <hr style="border: 5px solid #333;">
+
+
+        <h3>All Users</h3>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

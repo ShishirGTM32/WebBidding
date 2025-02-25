@@ -1,0 +1,142 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bid List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    {% include 'navigation.html' %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Bid List</h2>
+
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="alert alert-info">
+            <ul class="list-unstyled">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if user.role == 'seller' %}
+        <div class="text-end mb-4">
+            <a href="{% url 'create_bid' %}" class="btn btn-success">Add Bid</a>
+        </div>
+        {% endif %}
+
+        {% if bids %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Image</th>
+                    <th scope="col">Item Name</th>
+                    <th scope="col">Starting Price</th>
+                    <th scope="col">Highest Bid</th>
+                    <th scope="col">Auction End Time</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bid in bids %}
+                {% if not bid.is_completed %}
+                <tr>
+                    <td>
+                        <img src="{{ bid.image }}" class="img-thumbnail" style="width: 100px; height: 100px;" alt="Item Image">
+                    </td>
+                    <td>{{ bid.item_name }}</td>
+                    <td>${{ bid.starting_price }}</td>
+                    <td>
+                        {% if bid.highest_bid %}
+                        ${{ bid.highest_bid }}
+                        {% else %}
+                        No bids yet
+                        {% endif %}
+                    </td>
+                    <td>{{ bid.auction_end_time|date:"F j, Y, g:i a" }}</td>
+                    <td>
+                        {% if user.role == 'seller' %}
+                        {% if bid.user_id == user.id %}
+                        <a href="{% url 'update_bid' bid.id %}" class="btn btn-warning">Update</a>
+                        <button class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteBidModal-{{ bid.id }}">Delete</button>
+                        {% endif %}
+                        {% else %}
+                        <div class="d-flex flex-column align-items-center">
+                            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal"
+                                data-bs-target="#placeBidModal-{{ bid.id }}">Place Bid</button>
+                            <a href="{% url 'bid_detail' bid.id %}" class="btn btn-info">View Details</a>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal for Delete Confirmation -->
+                <div class="modal fade" id="deleteBidModal-{{ bid.id }}" tabindex="-1"
+                    aria-labelledby="deleteBidModalLabel-{{ bid.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteBidModalLabel-{{ bid.id }}">Confirm Deletion</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete the bid for "{{ bid.item_name }}"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="post" action="{% url 'delete_bid' bid.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete Bid</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal for Place Bid -->
+                <div class="modal fade" id="placeBidModal-{{ bid.id }}" tabindex="-1"
+                    aria-labelledby="placeBidModalLabel-{{ bid.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="placeBidModalLabel-{{ bid.id }}">Place a Bid</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Starting Price:</strong> ${{ bid.starting_price }}</p>
+                                <p><strong>Auction End Time:</strong> {{ bid.auction_end_time|date:"F j, Y, g:i a" }}</p>
+                                <form method="post" action="{% url 'place_bid' bid.id %}">
+                                    {% csrf_token %}
+                                    <div class="form-group mb-3">
+                                        <label for="bid_amount">Your Bid Amount</label>
+                                        <input type="number" name="bid_amount" id="bid_amount" class="form-control"
+                                            required min="{{ bid.starting_price }}" step="0.01"
+                                            placeholder="Enter your bid">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Place Bid</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info text-center">
+            No active bids available at the moment.
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

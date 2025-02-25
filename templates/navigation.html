@@ -1,0 +1,151 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Navigation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .listlamo {
+            width: 260px;
+            height: 200px;
+            position: absolute;
+            left: -100px;
+            top: 40px;
+        }
+
+        .listlamo {
+            display: none;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .listlamo.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .lamokha {
+            cursor: pointer;
+        }
+
+        .lamokha i {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light shadow">
+        <div class="container">
+            <a class="navbar-brand text-success logo h1 align-self-center" href="{% url 'home' %}">BIDS</a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'bid_list' %}">Bids</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+                    </li>
+                </ul>
+
+
+                <div class="d-flex align-items-center ms-2">
+                    <div class="position-relative me-3">
+                        <div class="lamokha">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="listlamo">
+                            {% for notification in notifications %}
+                                <li style="list-style: none;">{{notification.message}}</li>
+                            {% endfor %}
+
+                            <p>No more notification yet</p>
+
+                        </div>
+
+
+                    </div>
+                    <a class="nav-icon position-relative text-decoration-none" href="{% url 'LogIn' %}">
+                        <i class="fa fa-fw fa-user text-dark" style="font-size: 1.5rem;"></i>
+                        <span
+                            class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let noti = document.querySelector('.lamokha');
+            let list = document.querySelector('.listlamo');
+
+            noti.addEventListener('click', () => {
+                if (list.style.display === 'none' || list.style.display === '') {
+                    list.style.display = 'block';
+                    setTimeout(() => {
+                        list.classList.add('show');
+                    }, 10);
+                } else {
+                    list.classList.remove('show');
+                    setTimeout(() => {
+                        list.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let noti = document.querySelector('.lamokha');
+            let list = document.querySelector('.listlamo');
+
+            noti.addEventListener('mouseleave', (event) => {
+                list.classList.remove('show');
+                setTimeout(() => {
+                    list.style.display = 'none';
+                }, 300);
+            });
+        });
+
+
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>

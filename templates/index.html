@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Bidding Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% include 'navigation.html' %}
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Welcome to Our Bidding Platform</h1>
+
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/9422/9422452.png" alt="Wide Range of Items"
+                    class="img-fluid" style="max-width: 100%; height: 100px;">
+                <h4><strong>Wide Range of Items</strong></h4>
+                <p>From electronics to antiques, we have something for everyone! Explore and bid on your favorite items.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/1746/1746680.png" alt="Secure and Transparent"
+                    class="img-fluid" style="max-width: 100%; height: 100px;">
+                <h4><strong>Secure and Transparent</strong></h4>
+                <p>Our bidding process is safe, transparent, and fair for all participants. Your bids are in safe hands.
+                </p>
+            </div>
+            <div class="col-md-4 text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/17713/17713349.png" alt="Real-Time Updates"
+                    class="img-fluid" style="max-width: 100%; height: 100px;">
+                <h4><strong>Real-Time Updates</strong></h4>
+                <p>Stay up to date with real-time notifications about your bids and auctions. Never miss an opportunity!
+                </p>
+            </div>
+        </div>
+
+        <!-- Available Bidding Items -->
+        <h2 class="text-center mb-4">Available Bidding Items</h2>
+
+        <div class="row">
+            {% for item in bids %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ item.image }}" class="card-img-top" alt="{{ item.item_name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.item_name }}</h5>
+                        <p class="card-text"><strong>Starting Price:</strong> ${{ item.starting_price }}</p>
+                        <p class="card-text"><strong>Auction End Time:</strong> {{ item.auction_end_time|date:"F j, Y, g:i a" }}</p>
+                        <a href="{% url 'bid_detail' bid_id=item.id %}" class="btn btn-primary">Bid</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center">No bidding items available at the moment.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

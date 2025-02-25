@@ -1,0 +1,49 @@
+{% load static %}
+
+{% include 'navigation.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create a New Bid</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group mb-3">
+            <label for="item_name">Item Name</label>
+            <input type="text" name="item_name" id="item_name" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="item_description">Item Description</label>
+            <textarea name="item_description" id="item_description" class="form-control" rows="4" cols="50" required></textarea>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="starting_price">Starting Price</label>
+            <input type="text" name="starting_price" id="starting_price" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="auction_end_time">Auction End Time</label>
+            <input type="datetime-local" name="auction_end_time" id="auction_end_time" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="phone_number">Phone Number</label>
+            <input type="text" name="phone_number" id="phone_number" class="form-control" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="image">Image URL</label>
+            <input type="url" name="image" id="image" class="form-control" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Create Bid</button>
+    </form>
+</div>
+{% endblock %}

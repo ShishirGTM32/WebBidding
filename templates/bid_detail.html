@@ -1,0 +1,95 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bid Details - {{ bid.item_name }}</title>
+    {% include 'navigation.html' %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Optional: Link to your CSS -->
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Bid Details: {{ bid.item_name }}</h2><br><br><br>
+
+        <!-- Display messages -->
+        {% if messages %}
+            <div class="alert alert-info">
+                <ul class="list-unstyled">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Left Column for Image -->
+            <div class="col-md-5">
+                <img src="{{ bid.image }}" class="img-fluid" alt="{{ bid.item_name }}" style="max-width: 100%; height: auto;">
+                <p><strong>Starting Price:</strong> ${{ bid.starting_price }}</p>
+                <p><strong>Highest Bid:</strong> 
+                    {% if bid.highest_bid %}
+                        ${{ bid.highest_bid }}
+                    {% else %}
+                        No bids yet
+                    {% endif %}
+                </p>
+                <p><strong>Auction End Time:</strong> {{ bid.auction_end_time|date:"F j, Y, g:i a" }}</p>
+    
+                <!-- Buttons below the details -->
+                <div class="d-flex flex-column align-items-center mt-4" style="max-width: 300px; margin: 0 auto;">
+                    <!-- Place Bid Button -->
+                    <button type="button" class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal"
+                        data-bs-target="#placeBidModal-{{ bid.id }}" style="width: 100%;">
+                        Place Bid
+                    </button>
+                
+                    <!-- Back to Bid List Button -->
+                    <a href="{% url 'bid_list' %}" class="btn btn-info btn-lg" style="width: 100%;">
+                        Back to Bid List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column for Description and Details -->
+            <div class="col-md-7">
+                <p><strong>Item Description:</strong></p>
+                <p>{{ bid.item_description|linebreaks }}</p>  
+            </div>
+        </div>
+
+        <!-- Modal for Placing a Bid -->
+        <div class="modal fade" id="placeBidModal-{{ bid.id }}" tabindex="-1"
+                aria-labelledby="placeBidModalLabel-{{ bid.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="placeBidModalLabel-{{ bid.id }}">Place a Bid</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Starting Price:</strong> ${{ bid.starting_price }}</p>
+                        <p><strong>Auction End Time:</strong> {{ bid.auction_end_time|date:"F j, Y, g:i a" }}</p>
+                        <form method="post" action="{% url 'place_bid' bid.id %}">
+                            {% csrf_token %}
+                            <div class="form-group mb-3">
+                                <label for="bid_amount">Your Bid Amount</label>
+                                <input type="number" name="bid_amount" id="bid_amount" class="form-control"
+                                    required min="{{ bid.starting_price }}" step="any"
+                                    placeholder="Enter your bid">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Place Bid</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

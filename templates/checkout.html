@@ -1,0 +1,107 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Shipping Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    {% include 'navigation.html' %}
+
+    {% block content %}
+    <div class="container py-5">
+        <h1 class="h1 text-center mb-4">Shipping Details</h1>
+
+        <form method="POST" class="row g-4">
+            {% csrf_token %}
+            
+            <!-- Winning Bid Item Details -->
+            <div class="col-md-6">
+                <h5>Your Winning Bid</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Your Bid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if highest_bid_item %}
+                            <tr>
+                                <td>{{ highest_bid_item.bid.item_name }}</td> <!-- Product Name -->
+                                <td>${{ highest_bid_item.bid_amount }}</td> <!-- Winning Bid Amount -->
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center">No winning bid found.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+            <!-- Shipping Information -->
+            <div class="col-md-6">
+                <h5 class="text-primary">Shipping Information</h5>
+                
+                <!-- Address -->
+                <div class="mb-3">
+                    <label for="shipping_address" class="form-label">Address</label>
+                    <input type="text" id="shipping_address" name="shipping_address" class="form-control" 
+                        placeholder="123 Main St, Apt 4B" required>
+                </div>
+                
+                <!-- City -->
+                <div class="mb-3">
+                    <label for="shipping_city" class="form-label">City</label>
+                    <input type="text" id="shipping_city" name="shipping_city" class="form-control" 
+                        placeholder="New York" required>
+                </div>
+                
+                <!-- Postal Code -->
+                <div class="mb-3">
+                    <label for="shipping_postal_code" class="form-label">Postal Code</label>
+                    <input type="text" id="shipping_postal_code" name="shipping_postal_code" class="form-control" 
+                        placeholder="10001" required>
+                </div>
+                
+                <!-- Country -->
+                <div class="mb-3">
+                    <label for="shipping_country" class="form-label">Country</label>
+                    <input type="text" id="shipping_country" name="shipping_country" class="form-control" 
+                        placeholder="United States" required>
+                </div>
+                
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                        placeholder="example@example.com" required>
+                </div>
+                
+                <!-- Phone Number -->
+                <div class="mb-3">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number" class="form-control" 
+                        placeholder="+1 234 567 8901" required>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-success w-100">Proceed to Payment</button>
+            </div>
+        </form>
+    </div>
+    {% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

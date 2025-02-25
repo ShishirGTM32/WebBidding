@@ -1,0 +1,78 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Update Bid - {{ bid.item_name }}</title>
+    {% include 'navigation.html' %}
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Update Bid - {{ bid.item_name }}</h2>
+
+        <!-- Display form errors -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="item_name" class="form-label">Item Name</label>
+                <input type="text" class="form-control" id="item_name" name="item_name" value="{{ bid.item_name }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="item_description" class="form-label">Item Description</label>
+                <textarea class="form-control" id="item_description" name="item_description" rows="4" required>{{ bid.item_description }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="starting_price" class="form-label">Starting Price</label>
+                <input type="number" class="form-control" id="starting_price" name="starting_price" value="{{ bid.starting_price }}" required min="0" step="any">
+            </div>
+
+            <div class="mb-3">
+                <label for="highest_bid" class="form-label">Highest Bid</label>
+                <input type="number" class="form-control" id="highest_bid" name="highest_bid" value="{{ bid.highest_bid }}" disabled>
+            </div>
+
+            <div class="mb-3">
+                <label for="auction_end_time" class="form-label">Auction End Time</label>
+                <input type="datetime-local" class="form-control" id="auction_end_time" name="auction_end_time" value="{{ bid.auction_end_time|date:'Y-m-d\TH:i' }}" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="image">Image URL</label>
+                <input type="url" name="image" id="image" class="form-control" value="{{ bid.image }}" required>
+                <small class="form-text text-muted">Current Image: <img src="{{ bid.image }}" alt="{{ bid.item_name }}" style="max-width: 200px; height: auto;"></small>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Update Bid</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'bid_list' %}" class="btn btn-secondary">Back to Bid List</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
