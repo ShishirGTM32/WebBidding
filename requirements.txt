@@ -18,3 +18,4 @@ tzdata==2024.2
 urllib3==2.3.0
 whitenoise==6.8.2
 psycopg2-binary
+whitenoise
