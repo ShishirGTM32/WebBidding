@@ -18,7 +18,7 @@ DEBUG = True
 TIME_ZONE = 'Asia/Kathmandu' 
 USE_TZ = True 
 
-ALLOWED_HOSTS = ['https://webbid-wwpj.onrender.com']
+ALLOWED_HOSTS = ['webbid-wwpj.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
