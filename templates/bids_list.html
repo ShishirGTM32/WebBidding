@@ -44,7 +44,6 @@
             </thead>
             <tbody>
                 {% for bid in bids %}
-                {% if not bid.is_completed %}
                 <tr>
                     <td>
                         <img src="{{ bid.image }}" class="img-thumbnail" style="width: 100px; height: 100px;" alt="Item Image">
@@ -61,17 +60,17 @@
                     <td>{{ bid.auction_end_time|date:"F j, Y, g:i a" }}</td>
                     <td>
                         {% if user.role == 'seller' %}
-                        {% if bid.user_id == user.id %}
-                        <a href="{% url 'update_bid' bid.id %}" class="btn btn-warning">Update</a>
-                        <button class="btn btn-danger" data-bs-toggle="modal"
-                            data-bs-target="#deleteBidModal-{{ bid.id }}">Delete</button>
-                        {% endif %}
+                            {% if bid.user_id == user.id %}
+                            <a href="{% url 'update_bid' bid.id %}" class="btn btn-warning btn-sm">Update</a>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#deleteBidModal-{{ bid.id }}">Delete</button>
+                            {% endif %}
                         {% else %}
-                        <div class="d-flex flex-column align-items-center">
-                            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal"
-                                data-bs-target="#placeBidModal-{{ bid.id }}">Place Bid</button>
-                            <a href="{% url 'bid_detail' bid.id %}" class="btn btn-info">View Details</a>
-                        </div>
+                            <div class="d-flex flex-column gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#placeBidModal-{{ bid.id }}">Place Bid</button>
+                                <a href="{% url 'bid_detail' bid.id %}" class="btn btn-info btn-sm">View Details</a>
+                            </div>
                         {% endif %}
                     </td>
                 </tr>
@@ -90,7 +89,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <form method="post" action="{% url 'delete_bid' bid.id %}">
+                                <form method="post" action="{% url 'delete_bid' bid.id %}" style="display: inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Delete Bid</button>
                                 </form>
@@ -109,23 +108,31 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
+                                <p><strong>Item:</strong> {{ bid.item_name }}</p>
                                 <p><strong>Starting Price:</strong> ${{ bid.starting_price }}</p>
+                                <p><strong>Current Highest Bid:</strong> 
+                                    {% if bid.highest_bid %}
+                                        ${{ bid.highest_bid }}
+                                    {% else %}
+                                        No bids yet
+                                    {% endif %}
+                                </p>
                                 <p><strong>Auction End Time:</strong> {{ bid.auction_end_time|date:"F j, Y, g:i a" }}</p>
                                 <form method="post" action="{% url 'place_bid' bid.id %}">
                                     {% csrf_token %}
                                     <div class="form-group mb-3">
-                                        <label for="bid_amount">Your Bid Amount</label>
-                                        <input type="number" name="bid_amount" id="bid_amount" class="form-control"
+                                        <label for="bid_amount_{{ bid.id }}">Your Bid Amount</label>
+                                        <input type="number" name="bid_amount" id="bid_amount_{{ bid.id }}" class="form-control"
                                             required min="{{ bid.starting_price }}" step="0.01"
                                             placeholder="Enter your bid">
+                                        <small class="form-text text-muted">Minimum bid: ${{ bid.starting_price }}</small>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Place Bid</button>
+                                    <button type="submit" class="btn btn-primary w-100">Place Bid</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endif %}
                 {% endfor %}
             </tbody>
         </table>

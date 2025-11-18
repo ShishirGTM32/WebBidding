@@ -19,46 +19,62 @@
 
     <hr>
 
-    <!-- Bids Created by the Seller -->
-    <h3>Your Bids</h3>
-    {% if bids_list %}
+    <h3 class="mt-4">Active Auctions</h3>
+    {% if active_bids %}
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th scope="col">Item Name</th>
-                <th scope="col">Starting Price</th>
-                <th scope="col">Highest Bid</th>
-                <th scope="col">Auction End Time</th>
-                <th scope="col">Action</th>
+                <th>Item Name</th>
+                <th>Starting Price</th>
+                <th>Highest Bid</th>
+                <th>End Time</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for bid in bids_list %}
+            {% for bid in active_bids %}
             <tr>
                 <td>{{ bid.item_name }}</td>
                 <td>${{ bid.starting_price }}</td>
+                <td>${{ bid.highest_bid|default:"No bids" }}</td>
+                <td>{{ bid.auction_end_time|date:"M d, Y H:i" }}</td>
                 <td>
-                    {% if bid.highest_bid %}
-                    ${{ bid.highest_bid }}
-                    {% else %}
-                    No bids yet
-                    {% endif %}
-                </td>
-                <td>{{ bid.auction_end_time|date:"F j, Y, g:i a" }}</td>
-                <td>
-                    <a href="{% url 'bid_detail' bid.id %}" class="btn btn-info">View Details</a><br>
-                    <a href="{% url 'update_bid' bid.id %}" class="btn btn-warning">Update</a><br>
-                    <a href="{% url 'delete_bid' bid.id %}" class="btn btn-danger"
-                        onclick="return confirm('Are you sure you want to delete this bid?');">Delete</a>
+                    <a href="{% url 'update_bid' bid.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#deleteBidModal-{{ bid.id }}">Delete</button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <div class="alert alert-info">
-        You have not created any bids yet.
-    </div>
+    <p class="text-muted">No active auctions</p>
+    {% endif %}
+
+    <h3 class="mt-4">Ended Auctions</h3>
+    {% if ended_bids %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Final Price</th>
+                <th>End Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in ended_bids %}
+            <tr>
+                <td>{{ bid.item_name }}</td>
+                <td>${{ bid.highest_bid|default:"No bids" }}</td>
+                <td>{{ bid.auction_end_time|date:"M d, Y H:i" }}</td>
+                <td><span class="badge bg-secondary">Ended</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No ended auctions</p>
     {% endif %}
 
 

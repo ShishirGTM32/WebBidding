@@ -30,6 +30,7 @@
                     <th scope="col">Your Bid Amount</th>
                     <th scope="col">Starting Price</th>
                     <th scope="col">Auction End Time</th>
+                    <th scope="col">Status</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -37,21 +38,31 @@
                 {% for bid_item in bids_placed %}
                 <tr>
                     <td>{{ bid_item.bid.item_name }}</td>
-                    <td>${{ bid_item.bid_amount }}</td> <!-- Displaying the bid_amount as "Your Bid" -->
+                    <td>${{ bid_item.bid_amount }}</td>
                     <td>${{ bid_item.bid.starting_price }}</td>
                     <td>{{ bid_item.bid.auction_end_time|date:"F j, Y, g:i a" }}</td>
                     <td>
-                        <a href="{% url 'bid_detail' bid_id=bid_item.bid.id %}" class="btn btn-info">View Item Details</a>
-
-                        <!-- Display Checkout button for highest bid if payment is not completed -->
-                        {% with now=timezone.now %}
-                        {% if bid_item.is_highest_bid and not bid_item.payment_completed %}
-                        <a href="{% url 'checkout' bid_item.bid.id %}" class="btn btn-success">Checkout</a>
-                        {% endif %}
                         {% if bid_item.bid.auction_end_time <= now %}
-                            <p>Auction has ended.</p>
+                            {% if bid_item.is_highest_bid %}
+                                <span class="badge bg-success">Winner</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Outbid</span>
+                            {% endif %}
+                        {% else %}
+                            {% if bid_item.is_highest_bid %}
+                                <span class="badge bg-primary">Highest Bid</span>
+                            {% else %}
+                                <span class="badge bg-warning">Active</span>
+                            {% endif %}
                         {% endif %}
-                        {% endwith %}
+                    </td>
+                    <td>
+                        <a href="{% url 'bid_detail' bid_id=bid_item.bid.id %}" class="btn btn-info btn-sm">View Details</a>
+                        {% if bid_item.bid.auction_end_time <= now and bid_item.is_highest_bid and not bid_item.payment_completed %}
+                            <a href="{% url 'checkout' bid_item.bid.id %}" class="btn btn-success btn-sm">Checkout</a>
+                        {% elif bid_item.payment_completed %}
+                            <span class="badge bg-info">Paid</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -12,22 +12,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .listlamo {
-            width: 260px;
-            height: 200px;
+            width: 350px;
+            max-height: 450px;
+            overflow-y: auto;
             position: absolute;
-            left: -100px;
+            right: 0;
             top: 40px;
-        }
-
-        .listlamo {
             display: none;
             opacity: 0;
             transform: translateY(-20px);
             transition: opacity 0.3s ease, transform 0.3s ease;
             background-color: #fff;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
+            border-radius: 8px;
         }
 
         .listlamo.show {
@@ -38,10 +37,115 @@
 
         .lamokha {
             cursor: pointer;
+            position: relative;
         }
 
         .lamokha i {
             font-size: 24px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .notification-header {
+            padding: 15px;
+            border-bottom: 2px solid #eee;
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .mark-all-read-btn {
+            background: none;
+            border: none;
+            color: #007bff;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .mark-all-read-btn:hover {
+            color: #0056b3;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #e7f3ff;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .notification-item small {
+            color: #666;
+            font-size: 11px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .notification-message {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .no-notifications {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .no-notifications i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .mark-read-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #28a745;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .notification-item:hover .mark-read-icon {
+            opacity: 1;
         }
     </style>
 </head>
@@ -72,27 +176,52 @@
                     </li>
                 </ul>
 
-
                 <div class="d-flex align-items-center ms-2">
+                    {% if user.is_authenticated %}
                     <div class="position-relative me-3">
                         <div class="lamokha">
                             <i class="fa-solid fa-bell"></i>
+                            {% if notifications.count > 0 %}
+                                <span class="notification-badge" id="notificationCount">{{ notifications.count }}</span>
+                            {% endif %}
                         </div>
-                        <div class="listlamo">
-                            {% for notification in notifications %}
-                                <li style="list-style: none;">{{notification.message}}</li>
-                            {% endfor %}
-
-                            <p>No more notification yet</p>
-
+                        <div class="listlamo" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h6>Notifications</h6>
+                                {% if notifications.count > 0 %}
+                                <button class="mark-all-read-btn" onclick="markAllAsRead()">Mark all as read</button>
+                                {% endif %}
+                            </div>
+                            <div id="notificationList">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-notification-id="{{ notification.id }}" onclick="markAsRead({{ notification.id }})">
+                                            <div class="notification-message">{{ notification.message }}</div>
+                                            <small>{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                                            {% if not notification.is_read %}
+                                            <i class="fa-solid fa-check mark-read-icon" title="Mark as read"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="no-notifications">
+                                        <i class="fa-solid fa-bell-slash"></i>
+                                        <p>No notifications yet</p>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-
-
                     </div>
-                    <a class="nav-icon position-relative text-decoration-none" href="{% url 'LogIn' %}">
+                    {% endif %}
+                    
+                    <a class="nav-icon position-relative text-decoration-none" 
+                       href="{% if user.is_authenticated %}
+                                {% if user.role == 'seller' %}{% url 'seller_dashboard' %}
+                                {% elif user.role == 'bidder' %}{% url 'bidder_dashboard' %}
+                                {% elif user.role == 'admin' %}{% url 'admin_dashboard' %}
+                                {% else %}{% url 'home' %}{% endif %}
+                              {% else %}{% url 'LogIn' %}{% endif %}">
                         <i class="fa fa-fw fa-user text-dark" style="font-size: 1.5rem;"></i>
-                        <span
-                            class="position-absolute top-0 left-100 translate-middle badge rounded-pill bg-light text-dark"></span>
                     </a>
                 </div>
             </div>
@@ -101,49 +230,130 @@
 
     <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
     <script>
-
-
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-            let noti = document.querySelector('.lamokha');
-            let list = document.querySelector('.listlamo');
-
-            noti.addEventListener('click', () => {
-                if (list.style.display === 'none' || list.style.display === '') {
-                    list.style.display = 'block';
-                    setTimeout(() => {
-                        list.classList.add('show');
-                    }, 10);
-                } else {
-                    list.classList.remove('show');
-                    setTimeout(() => {
-                        list.style.display = 'none';
-                    }, 300);
+        // Get CSRF token for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
-            });
+            }
+            return cookieValue;
+        }
 
+        const csrftoken = getCookie('csrftoken');
 
-        });
-
+        // Toggle notification dropdown
         document.addEventListener('DOMContentLoaded', () => {
-            let noti = document.querySelector('.lamokha');
-            let list = document.querySelector('.listlamo');
+            const noti = document.querySelector('.lamokha');
+            const list = document.querySelector('.listlamo');
 
-            noti.addEventListener('mouseleave', (event) => {
-                list.classList.remove('show');
-                setTimeout(() => {
-                    list.style.display = 'none';
-                }, 300);
-            });
+            if (noti && list) {
+                noti.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    list.classList.toggle('show');
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!noti.contains(e.target) && !list.contains(e.target)) {
+                        list.classList.remove('show');
+                    }
+                });
+            }
         });
 
+        // Mark single notification as read
+        function markAsRead(notificationId) {
+            fetch(`/notifications/mark-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove the notification item from the list
+                    const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (notificationItem) {
+                        notificationItem.remove();
+                    }
 
+                    // Update notification count
+                    updateNotificationCount();
 
+                    // Check if there are no more notifications
+                    const remainingNotifications = document.querySelectorAll('.notification-item').length;
+                    if (remainingNotifications === 0) {
+                        document.getElementById('notificationList').innerHTML = `
+                            <div class="no-notifications">
+                                <i class="fa-solid fa-bell-slash"></i>
+                                <p>No notifications yet</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
+        // Mark all notifications as read
+        function markAllAsRead() {
+            fetch('/notifications/mark-all-read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Clear all notifications
+                    document.getElementById('notificationList').innerHTML = `
+                        <div class="no-notifications">
+                            <i class="fa-solid fa-bell-slash"></i>
+                            <p>No notifications yet</p>
+                        </div>
+                    `;
 
+                    // Remove notification badge
+                    const badge = document.getElementById('notificationCount');
+                    if (badge) {
+                        badge.remove();
+                    }
 
+                    // Hide the dropdown after a short delay
+                    setTimeout(() => {
+                        document.querySelector('.listlamo').classList.remove('show');
+                    }, 500);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
+        // Update notification count
+        function updateNotificationCount() {
+            const remainingCount = document.querySelectorAll('.notification-item').length;
+            const badge = document.getElementById('notificationCount');
+            
+            if (remainingCount > 0) {
+                if (badge) {
+                    badge.textContent = remainingCount;
+                }
+            } else {
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        }
     </script>
 
 </body>
